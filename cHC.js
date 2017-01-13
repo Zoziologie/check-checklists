@@ -10,32 +10,27 @@ jQuery(document).ready(function(){
 		} else if (subID.length>500) {
 			alert('Too many subID ('+subID.length.toString()+')... Try to split it in several group of 500.')
 		}	else {
-			var i=0, j=0;
 			jQuery("body").css("cursor", "progress");
 			jQuery('#submit').css("cursor", "progress");
-			jQuery('#progress-bar-id').css('width', '0%');
-			jQuery('#progress-bar-id').html('0/'+subID.length.toString())
-			jQuery('#progress-id').removeClass('hidden');
+			//jQuery('#progress-bar-id').css('width', '0%');
+			//jQuery('#progress-bar-id').html('0/'+subID.length.toString())
+			//jQuery('#progress-id').removeClass('hidden');
 
-			subID.forEach(function(ID){
-				jQuery.getJSON('http://tseep.com/api/checklist?'+ID,function(data){
-					i=i+1;
-					jQuery('#progress-bar-id').css('width', (i/subID.length*100).toString()+'%');
-					jQuery('#progress-bar-id').html(i.toString()+'/'+subID.length.toString())
-					if (data.checklistID && data.observations.length == 0){
-						hiddenID.push(data.checklistID);
-						jQuery('#IDlistHidden').append('<a href="http://ebird.org/ebird/view/checklist/'+data.checklistID+'" target="_blank"><span class="label label-success">'+data.checklistID+ '</span></a>  ');
-						j=j+1;
-					}
-					if (i>=subID.length){
-						jQuery("body").css("cursor", "default");
-						jQuery('#submit').css("cursor", "default");
-						jQuery('#progress-id').addClass('hidden');
-						if(j==0){
-							jQuery('#IDlistHidden').html('No result!');
-						}
+			jQuery.getJSON('http://tseep.com/api/checklist?'+subID.join(','),function(data){
+				data.forEach(function(d,i){
+					//jQuery('#progress-bar-id').css('width', (i/subID.length*100).toString()+'%');
+					//jQuery('#progress-bar-id').html(i.toString()+'/'+subID.length.toString())
+					if (d.hidden){
+						hiddenID.push(d.checklistID);
+						jQuery('#IDlistHidden').append('<a href="http://ebird.org/ebird/view/checklist/'+d.checklistID+'" target="_blank"><span class="label label-success">'+d.checklistID+ '</span></a>  ');
 					}
 				})
+				jQuery("body").css("cursor", "default");
+				jQuery('#submit').css("cursor", "default");
+				//jQuery('#progress-id').addClass('hidden');
+				if(hiddenID.length==0){
+					jQuery('#IDlistHidden').html('No result!');
+				}
 			})
 		}
 	});
