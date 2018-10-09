@@ -9,11 +9,36 @@ function getChecklists(test){
 		alert('Too many subID ('+subID.length.toString()+')... Try to split it in several group of 500.')
 	}	else {
 		jQuery("body").css("cursor", "progress");
-		jQuery('#submit').css("cursor", "progress");
+		jQuery('#checkHidden').css("cursor", "progress");
+		jQuery('#comment').css("cursor", "progress");
+		
 		//jQuery('#progress-bar-id').css('width', '0%');
 		//jQuery('#progress-bar-id').html('0/'+subID.length.toString())
 		//jQuery('#progress-id').removeClass('hidden');
-		jQuery.getJSON('https://tseep.com/api/checklist?'+subID.join(','),function(chlts){
+		subID.forEach(function(subIDi,idx){
+			jQuery.ajax({
+				"async": true,
+				"crossDomain": true,
+				"url": "https://ebird.org/ws2.0/product/checklist/view/"+subIDi,
+				"method": "GET",
+				"headers": {
+					"X-eBirdApiToken": token.ebird
+				}
+			}).done(function (response) {
+				if (response.reasonCodeLatest=="obshide"){
+					jQuery('#subIDResult').append('<a href="http://ebird.org/ebird/view/checklist/'+subIDi+'" target="_blank"><span class="label label-success">'+subIDi+ '</span></a>  ');
+				}
+				if (idx === subID.length - 1){ 
+					jQuery('#subIDResult').append('Finished ('+ subID.length.toString()+ ' checklists tested)' )
+					jQuery("body").css("cursor", "default");
+					jQuery('#checkHidden').css("cursor", "default");
+					jQuery('#comment').css("cursor", "default");
+			   }
+			});
+		})
+
+
+		/*jQuery.getJSON('https://tseep.com/api/checklist?'+subID.join(','),function(chlts){
 			console.log(chlts)
 			if (chlts){
 				jQuery('#subIDResult').html('');
@@ -36,7 +61,7 @@ function getChecklists(test){
 			}
 			jQuery("body").css("cursor", "default");
 			jQuery('#submit').css("cursor", "default");
-		})
+		})*/
 	}
 }
 
